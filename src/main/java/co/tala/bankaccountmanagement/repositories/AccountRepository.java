@@ -13,4 +13,6 @@ import java.util.Optional;
 public interface AccountRepository extends JpaRepository<AccountEntity, Long> {
     @Query(value = "select new co.tala.bankaccountmanagement.dto.AccountBalanceDTO (ac.accountNo, ac.amount) from accounts ac where ac.accountNo = :accountNo")
     Optional<AccountBalanceDTO> getAccountBalance(@Param("accountNo") String accountNo);
+
+    Optional<AccountEntity> findAccountEntityByAccountNo(@Param("accountNo") String accountNo);
 }

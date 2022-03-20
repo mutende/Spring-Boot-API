@@ -6,14 +6,10 @@ import co.tala.bankaccountmanagement.pojos.ResourceResponse;
 import co.tala.bankaccountmanagement.service.AccountManagementService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-@Validated
 @RestController
 @RequestMapping("/api/v1/")
 public class AccountManagementController {
@@ -32,13 +28,13 @@ public class AccountManagementController {
     }
 
     @PostMapping("/deposit")
-    public ResponseEntity<ResourceResponse> depositToAccount(@Valid DepositRequest request)
+    public ResponseEntity<ResourceResponse> depositToAccount(@Valid @RequestBody DepositRequest request)
     {
         return accountManagementService.depositToAccount(request);
     }
 
     @PostMapping("/withdraw")
-    public ResponseEntity<ResourceResponse> withdraw(@Valid WithdrawRequest request)
+    public ResponseEntity<ResourceResponse> withdraw(@Valid @RequestBody WithdrawRequest request)
     {
         return accountManagementService.withdraw(request);
     }

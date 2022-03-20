@@ -15,7 +15,6 @@ import javax.validation.constraints.NotNull;
 public class WithdrawRequest {
 
     @NotNull(message = "Amount cannot be null")
-    @NotEmpty(message = "Amount cannot be empty")
     @DecimalMax(value = "20000", message = "Maximum withdrawal for a single transaction is $20k")
     private Double amount;
 
