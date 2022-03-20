@@ -23,8 +23,7 @@ import java.util.Date;
 @Setter
 @Getter
 @NoArgsConstructor
-@Entity
-@Table(name="transaction_types")
+@Entity(name="transaction_types")
 public class TransactionTypeEntity {
 
     @Id

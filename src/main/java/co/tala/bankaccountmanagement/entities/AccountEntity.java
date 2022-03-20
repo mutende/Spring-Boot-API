@@ -1,8 +1,10 @@
 package co.tala.bankaccountmanagement.entities;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
 
@@ -11,8 +13,7 @@ import java.util.Date;
 @Setter
 @Getter
 @NoArgsConstructor
-@Entity
-@Table(name="accounts")
+@Entity(name="accounts")
 public class AccountEntity {
 
     @Id
@@ -26,8 +27,12 @@ public class AccountEntity {
     @Column(name = "amount", nullable = false)
     private Double amount;
 
-    @Basic(optional = false)
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="date_created", insertable = false, updatable = false)
+    @CreationTimestamp
+    @Column(name="date_created", nullable = false, updatable = false)
     private Date dateCreated;
+
+    public AccountEntity(String accountNo, Double amount) {
+        this.accountNo = accountNo;
+        this.amount = amount;
+    }
 }

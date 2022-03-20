@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface AccountManagementService {
-    public ResponseEntity<ResourceResponse> getAccountBalance(String accountNo);
-    public ResponseEntity<ResourceResponse> depositToAccount(DepositRequest request);
-    public ResponseEntity<ResourceResponse> withdraw(WithdrawRequest request);
+    ResponseEntity<ResourceResponse> getAccountBalance(String accountNo);
+    ResponseEntity<ResourceResponse> depositToAccount(DepositRequest request);
+    ResponseEntity<ResourceResponse> withdraw(WithdrawRequest request);
 
 }

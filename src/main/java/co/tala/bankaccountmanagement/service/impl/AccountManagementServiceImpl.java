@@ -29,18 +29,16 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
     @Override
     public ResponseEntity<ResourceResponse> getAccountBalance(String accountNo) {
-//        Optional<AccountBalanceDTO> accountBalanceDTO = accountRepository.getAccountBalance(accountNo);
-//
-//        if(accountBalanceDTO.isEmpty()){
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( new ResourceResponse(
-//                    "Account number does not exist", HttpStatus.NOT_FOUND.value(),null
-//            ));
-//        }
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body( new ResourceResponse(
-//                "Account balance request processed successfully", HttpStatus.OK.value(),accountBalanceDTO.get()
-//        ));
+        Optional<AccountBalanceDTO> accountBalanceDTO = accountRepository.getAccountBalance(accountNo);
 
-        return null;
+        if(accountBalanceDTO.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( new ResourceResponse(
+                    "Account number does not exist", HttpStatus.NOT_FOUND.value(),null
+            ));
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body( new ResourceResponse(
+                "Account balance request processed successfully", HttpStatus.OK.value(),accountBalanceDTO.get()
+        ));
     }
 
     @Override
