@@ -61,12 +61,15 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
         List<TransactionEntity> todayTransactions = transactionRepository
                 .findAllByAccountAndDateBetweenAndTransactionType(account.get(),
-                        getStartAndEndOfDay().get("startOfDay"), getStartAndEndOfDay().get("endOfDay"),
+                        Utilities.getStartAndEndOfDay().get("startOfDay"),
+                        Utilities.getStartAndEndOfDay().get("endOfDay"),
                         TransactionTypes.DEPOSIT);
 
 
-        long numberOfTransactionsToday = transactionRepository.countByAccountAndDateBetweenAndTransactionType(account.get(),
-                getStartAndEndOfDay().get("startOfDay"), getStartAndEndOfDay().get("endOfDay"), TransactionTypes.DEPOSIT)
+        long numberOfTransactionsToday = transactionRepository
+                .countByAccountAndDateBetweenAndTransactionType(account.get(),
+                        Utilities.getStartAndEndOfDay().get("startOfDay"),
+                        Utilities.getStartAndEndOfDay().get("endOfDay"), TransactionTypes.DEPOSIT)
                 + 1;
 
 
@@ -124,11 +127,13 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
         List<TransactionEntity> todayTransactions = transactionRepository
                 .findAllByAccountAndDateBetweenAndTransactionType(account.get(),
-                        getStartAndEndOfDay().get("startOfDay"), getStartAndEndOfDay().get("endOfDay"),
+                        Utilities.getStartAndEndOfDay().get("startOfDay"),
+                        Utilities.getStartAndEndOfDay().get("endOfDay"),
                         TransactionTypes.WITHDRAW);
 
         long numberOfTransactionsToday = transactionRepository.countByAccountAndDateBetweenAndTransactionType(account.get(),
-                getStartAndEndOfDay().get("startOfDay"), getStartAndEndOfDay().get("endOfDay"), TransactionTypes.WITHDRAW)
+                Utilities.getStartAndEndOfDay().get("startOfDay"), Utilities.getStartAndEndOfDay().get("endOfDay"),
+                TransactionTypes.WITHDRAW)
                 + 1;
 
         if(numberOfTransactionsToday > 3) {
@@ -160,22 +165,6 @@ public class AccountManagementServiceImpl implements AccountManagementService {
                 "Successfully withdrawn $"+request.getAmount()+" from your account",
                 HttpStatus.OK.value(), null
         ));
-    }
-
-    private static Map<String, Date> getStartAndEndOfDay()
-    {
-
-        Date date = new Date();
-        LocalDateTime localDateTime = Utilities.dateToLocalDateTime(date);
-        LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
-        LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
-
-        Map<String, Date> dateValues = new HashMap<>();
-
-        dateValues.put("startOfDay", Utilities.localDateTimeToDate(startOfDay));
-        dateValues.put("endOfDay", Utilities.localDateTimeToDate(endOfDay));
-
-        return dateValues;
     }
 
 

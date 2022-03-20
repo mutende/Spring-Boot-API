@@ -1,8 +1,11 @@
 package co.tala.bankaccountmanagement.utilities;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class Utilities {
@@ -27,4 +30,20 @@ public class Utilities {
         public static Date localDateTimeToDate(LocalDateTime localDateTime) {
             return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
         }
+
+    public static Map<String, Date> getStartAndEndOfDay()
+    {
+
+        Date date = new Date();
+        LocalDateTime localDateTime = Utilities.dateToLocalDateTime(date);
+        LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
+        LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
+
+        Map<String, Date> dateValues = new HashMap<>();
+
+        dateValues.put("startOfDay", Utilities.localDateTimeToDate(startOfDay));
+        dateValues.put("endOfDay", Utilities.localDateTimeToDate(endOfDay));
+
+        return dateValues;
+    }
 }
