@@ -1,5 +1,6 @@
 package co.tala.bankaccountmanagement.service.impl;
 
+import co.tala.bankaccountmanagement.configs.ConfigProperties;
 import co.tala.bankaccountmanagement.dto.AccountBalanceDTO;
 import co.tala.bankaccountmanagement.dto.requests.DepositRequest;
 import co.tala.bankaccountmanagement.dto.requests.WithdrawRequest;
@@ -11,6 +12,7 @@ import co.tala.bankaccountmanagement.repositories.AccountRepository;
 import co.tala.bankaccountmanagement.repositories.TransactionRepository;
 import co.tala.bankaccountmanagement.service.AccountManagementService;
 import co.tala.bankaccountmanagement.utilities.Utilities;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,9 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
+
+    @Autowired
+    private  ConfigProperties configProperties;
 
     public AccountManagementServiceImpl(AccountRepository accountRepository,
                                         TransactionRepository transactionRepository) {
@@ -71,7 +76,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
                 + 1;
 
 
-        if(numberOfTransactionsToday > 4) {
+        if(numberOfTransactionsToday > configProperties.getDepositTransactionLimit()) {
             return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).body( new ResourceResponse(
                     "You have reached limit of your deposit transactions today ",
                     HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value(), null
@@ -81,7 +86,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
         double totalAmountDepositedToday = todayTransactions.stream().mapToDouble(TransactionEntity::getAmount).sum();
 
-        if((totalAmountDepositedToday + request.getAmount()) > 150000)
+        if((totalAmountDepositedToday + request.getAmount()) > configProperties.getMaxDailyDeposit())
         {
             return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).body( new ResourceResponse(
                     "You have reached limit of amount you can deposit in a day, total deposits for today is  $"+
@@ -134,7 +139,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
                 TransactionTypes.WITHDRAW)
                 + 1;
 
-        if(numberOfTransactionsToday > 3) {
+        if(numberOfTransactionsToday > configProperties.getWithdrawTransactionsLimit()) {
             return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).body( new ResourceResponse(
                     "You have reached limit of your withdrawal transactions today",
                     HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value(), null
@@ -143,7 +148,7 @@ public class AccountManagementServiceImpl implements AccountManagementService {
 
         double totalAmountWithdrawnToday = todayTransactions.stream().mapToDouble(TransactionEntity::getAmount).sum();
 
-        if((totalAmountWithdrawnToday + request.getAmount()) > 50000)
+        if((totalAmountWithdrawnToday + request.getAmount()) > configProperties.getMaxDailyWithdrawals())
         {
             return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).body( new ResourceResponse(
                     "You have reached limit of amount you can withdraw in a day, " +
