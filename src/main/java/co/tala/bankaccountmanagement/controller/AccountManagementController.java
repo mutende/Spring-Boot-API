@@ -21,7 +21,7 @@ public class AccountManagementController {
     }
 
 
-    @PostMapping("/get-account-balance/{accountNo}")
+    @PostMapping("/getAccountBalance/{accountNo}")
     public ResponseEntity<ResourceResponse> getAccountBalance(@PathVariable String accountNo)
     {
         return accountManagementService.getAccountBalance(accountNo);

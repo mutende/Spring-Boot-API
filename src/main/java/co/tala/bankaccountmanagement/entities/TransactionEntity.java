@@ -31,7 +31,7 @@ public class TransactionEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "transaction_type")
-    private TransactionTypes type;
+    private TransactionTypes transactionType;
 
     @JoinColumn(name = "account_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
@@ -44,7 +44,7 @@ public class TransactionEntity {
     public TransactionEntity(String transactionId, Double amount, TransactionTypes type, AccountEntity account) {
         this.transactionId = transactionId;
         this.amount = amount;
-        this.type = type;
+        this.transactionType = type;
         this.account = account;
     }
 }

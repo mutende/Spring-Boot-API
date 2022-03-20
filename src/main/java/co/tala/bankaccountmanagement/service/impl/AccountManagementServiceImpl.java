@@ -16,12 +16,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -31,7 +28,8 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
 
-    public AccountManagementServiceImpl(AccountRepository accountRepository, TransactionRepository transactionRepository) {
+    public AccountManagementServiceImpl(AccountRepository accountRepository,
+                                        TransactionRepository transactionRepository) {
         this.accountRepository = accountRepository;
         this.transactionRepository = transactionRepository;
     }
@@ -54,13 +52,6 @@ public class AccountManagementServiceImpl implements AccountManagementService {
     public ResponseEntity<ResourceResponse> depositToAccount(DepositRequest request) {
         Optional<AccountEntity> account = accountRepository.findAccountEntityByAccountNo(request.getAccountNo());
 
-        //start of day
-        Date date = new Date();
-        LocalDateTime localDateTime = Utilities.dateToLocalDateTime(date);
-        LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
-        LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
-
-
         if(account.isEmpty())
         {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body( new ResourceResponse(
@@ -68,23 +59,26 @@ public class AccountManagementServiceImpl implements AccountManagementService {
             ));
         }
 
-        long numberOfTransactionsToday = transactionRepository.countByAccountAndDateBetween(account.get(),
-                Utilities.localDateTimeToDate(startOfDay), Utilities.localDateTimeToDate(endOfDay));
+        List<TransactionEntity> todayTransactions = transactionRepository
+                .findAllByAccountAndDateBetweenAndTransactionType(account.get(),
+                        getStartAndEndOfDay().get("startOfDay"), getStartAndEndOfDay().get("endOfDay"),
+                        TransactionTypes.DEPOSIT);
 
 
-        if((numberOfTransactionsToday+1) > 4)
-        {
+        long numberOfTransactionsToday = transactionRepository.countByAccountAndDateBetweenAndTransactionType(account.get(),
+                getStartAndEndOfDay().get("startOfDay"), getStartAndEndOfDay().get("endOfDay"), TransactionTypes.DEPOSIT)
+                + 1;
+
+
+        if(numberOfTransactionsToday > 4) {
             return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).body( new ResourceResponse(
-                    "You have reached limit of your transactions today ", HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value(), null
+                    "You have reached limit of your deposit transactions today ",
+                    HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value(), null
             ));
         }
 
 
-        List<TransactionEntity> todaysTransactions = transactionRepository.findAllByAccountAndDateBetween(account.get(),
-                Utilities.localDateTimeToDate(startOfDay), Utilities.localDateTimeToDate(endOfDay));
-
-
-        double totalAmountDepositedToday = todaysTransactions.stream().mapToDouble(TransactionEntity::getAmount).sum();
+        double totalAmountDepositedToday = todayTransactions.stream().mapToDouble(TransactionEntity::getAmount).sum();
 
         if((totalAmountDepositedToday + request.getAmount()) > 150000)
         {
@@ -102,13 +96,87 @@ public class AccountManagementServiceImpl implements AccountManagementService {
         account.get().setAmount(currentBalance + request.getAmount());
         accountRepository.save(account.get());
 
-        return ResponseEntity.status(HttpStatus.CREATED).body( new ResourceResponse(
-                "Successfully deposited "+request.getAmount()+" to your account", HttpStatus.CREATED.value(), null
+        return ResponseEntity.status(HttpStatus.OK).body( new ResourceResponse(
+                "Successfully deposited $"+request.getAmount()+" to your account",
+                HttpStatus.OK.value(), null
         ));
     }
 
     @Override
     public ResponseEntity<ResourceResponse> withdraw(WithdrawRequest request) {
-        return null;
+
+        Optional<AccountEntity> account = accountRepository.findAccountEntityByAccountNo(request.getAccountNo());
+
+        if(account.isEmpty())
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body( new ResourceResponse(
+                    "Account number does not exist", HttpStatus.NOT_FOUND.value(),null
+            ));
+        }
+
+        if(request.getAmount() > account.get().getAmount())
+        {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body( new ResourceResponse(
+                    "You do not have sufficient account balance to complete this transaction",
+                    HttpStatus.FORBIDDEN.value(), null
+            ));
+        }
+
+        List<TransactionEntity> todayTransactions = transactionRepository
+                .findAllByAccountAndDateBetweenAndTransactionType(account.get(),
+                        getStartAndEndOfDay().get("startOfDay"), getStartAndEndOfDay().get("endOfDay"),
+                        TransactionTypes.WITHDRAW);
+
+        long numberOfTransactionsToday = transactionRepository.countByAccountAndDateBetweenAndTransactionType(account.get(),
+                getStartAndEndOfDay().get("startOfDay"), getStartAndEndOfDay().get("endOfDay"), TransactionTypes.WITHDRAW)
+                + 1;
+
+        if(numberOfTransactionsToday > 3) {
+            return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).body( new ResourceResponse(
+                    "You have reached limit of your withdrawal transactions today",
+                    HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value(), null
+            ));
+        }
+
+        double totalAmountWithdrawnToday = todayTransactions.stream().mapToDouble(TransactionEntity::getAmount).sum();
+
+        if((totalAmountWithdrawnToday + request.getAmount()) > 50000)
+        {
+            return ResponseEntity.status(HttpStatus.BANDWIDTH_LIMIT_EXCEEDED).body( new ResourceResponse(
+                    "You have reached limit of amount you can withdraw in a day, " +
+                            "total amount withdrawn today is $"+ totalAmountWithdrawnToday+" and daily limit is $50k",
+                    HttpStatus.BANDWIDTH_LIMIT_EXCEEDED.value(), null
+            ));
+        }
+
+        TransactionEntity trx = new TransactionEntity(Utilities.generateTransactionId(), request.getAmount(),
+                TransactionTypes.WITHDRAW, account.get());
+        transactionRepository.save(trx);
+        double currentBalance = account.get().getAmount();
+        account.get().setAmount(currentBalance - request.getAmount());
+        accountRepository.save(account.get());
+
+        return ResponseEntity.status(HttpStatus.OK).body( new ResourceResponse(
+                "Successfully withdrawn $"+request.getAmount()+" from your account",
+                HttpStatus.OK.value(), null
+        ));
     }
+
+    private static Map<String, Date> getStartAndEndOfDay()
+    {
+
+        Date date = new Date();
+        LocalDateTime localDateTime = Utilities.dateToLocalDateTime(date);
+        LocalDateTime startOfDay = localDateTime.with(LocalTime.MIN);
+        LocalDateTime endOfDay = localDateTime.with(LocalTime.MAX);
+
+        Map<String, Date> dateValues = new HashMap<>();
+
+        dateValues.put("startOfDay", Utilities.localDateTimeToDate(startOfDay));
+        dateValues.put("endOfDay", Utilities.localDateTimeToDate(endOfDay));
+
+        return dateValues;
+    }
+
+
 }
