@@ -18,7 +18,7 @@ class AccountRepositoryTest {
     private AccountRepository accountRepository;
 
     @Test
-    void getAccountBalance() {
+    void canGetAccountBalance() {
         String accountNo = "12345678";
         double amount = 23.0;
         AccountEntity account = new AccountEntity(accountNo, amount);
@@ -31,7 +31,6 @@ class AccountRepositoryTest {
         assertThat(accountBalanceDTO.get().getBalance()).isEqualTo(amount);
 
         double newBal = amount + 10;
-        System.out.println(account);
         account.setAmount(newBal);
         accountRepository.save(account);
         accountBalanceDTO = accountRepository.getAccountBalance(accountNo);
@@ -40,7 +39,7 @@ class AccountRepositoryTest {
     }
 
     @Test
-    void findAccountEntityByAccountNo() {
+    void canFindAccountEntityByAccountNo() {
 
         String accountNo = "12345678";
         double amount = 23.0;

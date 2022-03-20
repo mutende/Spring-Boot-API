@@ -24,7 +24,7 @@ class TransactionRepositoryTest {
     private AccountRepository accountRepository;
 
     @Test
-    void countByAccountAndDateBetweenAndTransactionType() {
+    void canCountByAccountAndDateBetweenAndTransactionType() {
 
         String accountNo = "12345678";
         double amount = 23.0;
@@ -58,7 +58,7 @@ class TransactionRepositoryTest {
     }
 
     @Test
-    void findAllByAccountAndDateBetweenAndTransactionType() {
+    void canFindAllByAccountAndDateBetweenAndTransactionType() {
         String accountNo = "12345678";
         double amount = 23.0;
         AccountEntity account = new AccountEntity(accountNo, amount);
