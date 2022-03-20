@@ -14,3 +14,7 @@
 ### NOTE: ###
 
 * Project uses H2 in memory databases.
+* You can run mvn clean test and generate test report  in /target/site/jacoco/
+* Logs are stored in /tmp/logs/bank-account-management.log
+* You can get a postman collection [here](https://www.getpostman.com/collections/bd38682ca1303df8fef5) or import
+"Bank Account Management.postman_collection.json" from the root directory of the project.

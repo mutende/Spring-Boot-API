@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+    <property resource="application.properties" />
+
+    <!-- Send logs to the console -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} | Severity=%-5p | %m %n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Send logs to file -->
+    <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/tmp/logs/bank-account-management.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>/tmp/logs/bank-account-management_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>        
+        <encoder>
+             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} | Severity=%-5p | %m %n</pattern>
+        </encoder>
+    </appender>        
+
+    <!-- Level of logs to collect and where to send them -->
+    <root level="INFO">
+        <appender-ref ref="file"/>
+    </root>
+
+    <root level="ERROR">
+        <appender-ref ref="file"/>
+    </root>
+
+</configuration>    
