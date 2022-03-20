@@ -1,5 +1,5 @@
 package co.tala.bankaccountmanagement.entities.Enums;
 
-public enum TypesOfTransaction {
+public enum TransactionTypes {
     DEPOSIT,WITHDRAW
 }

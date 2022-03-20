@@ -15,7 +15,6 @@ import javax.validation.constraints.NotNull;
 public class DepositRequest {
 
     @NotNull(message = "Amount cannot be null")
-    @NotEmpty(message = "Amount cannot be empty")
     @DecimalMax(value = "40000", message = "Maximum deposit for a transaction is $40k")
     private Double amount;
 
@@ -23,4 +22,5 @@ public class DepositRequest {
     @NotEmpty(message = "Account Number cannot  be empty")
     @NotBlank(message = "Account Number cannot  be blank")
     private String accountNo;
+
 }
